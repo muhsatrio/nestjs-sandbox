@@ -6,5 +6,4 @@
 
 ## To Do List
 
-* Add Middleware Authorization
 * Add Integration Test
