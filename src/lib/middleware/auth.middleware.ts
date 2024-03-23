@@ -1,19 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { GeneralConst } from 'src/lib/const/general.const';
+import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { NextFunction, Request, Response } from "express";
+import { GeneralConst } from "../const/general.const";
 
 @Injectable()
-export class AuthService {
+export class AuthMiddleware implements NestMiddleware {
     constructor(
         private jwtService: JwtService
     ) {}
 
-    async auth(headerAuthorization: string) {
-        if (!headerAuthorization) {
+    async use (req: Request, _res: Response, next: NextFunction) {
+        if (!req.headers.authorization) {
             throw new UnauthorizedException('Unauthorized');
         }
 
-        const token = this.extractTokenFromHeader(headerAuthorization);
+        const token = this.extractTokenFromHeader(req.headers.authorization);
 
         if (!token) {
             throw new UnauthorizedException('Unauthorized');
@@ -26,14 +27,8 @@ export class AuthService {
         } catch {
             throw new UnauthorizedException('Unauthorized');
         }
-    }
 
-    async signToken(username: string): Promise<string> {
-        const token = await this.jwtService.signAsync({
-            username: username
-        });
-
-        return token;
+        next();
     }
 
     private extractTokenFromHeader(auth: string): string | undefined {

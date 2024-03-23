@@ -6,16 +6,16 @@ import { InsertUserDTO } from './dto/insert-user.dto';
 import { GetUsersDTO } from './dto/get.users.dto';
 import * as bcrypt from 'bcrypt';
 import { FindUserDTO } from './dto/find-user.dto';
-import { AuthService } from 'src/auth/auth.service';
 import { LoginRequestDTO } from './dto/login-request.dto';
 import { LoginResponseDTO } from './dto/login-response.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(Users)
         private usersRepository: Repository<Users>,
-        private authService: AuthService,
+        private jwtService: JwtService
         ) {}
 
     async insert(request: InsertUserDTO): Promise<void> {
@@ -54,9 +54,7 @@ export class UsersService {
         }
     }
 
-    async getAll(headerAuth: string): Promise<GetUsersDTO[]> {
-        await this.authService.auth(headerAuth);
-
+    async getAll(): Promise<GetUsersDTO[]> {
         const foundUser: Users[] = await this.usersRepository.find();
         const returnedUsers: GetUsersDTO[] = new Array();
 
@@ -83,10 +81,18 @@ export class UsersService {
             throw new UnauthorizedException("Username or Password is not match");
         }
 
-        const token = await this.authService.signToken(foundUser.username);
+        const token = await this.signToken(foundUser.username);
 
         return {
             token
         };
+    }
+
+    private async signToken(username: string): Promise<string> {
+        const token = await this.jwtService.signAsync({
+            username: username
+        });
+
+        return token;
     }
 }

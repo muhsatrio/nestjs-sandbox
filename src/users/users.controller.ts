@@ -23,8 +23,8 @@ export class UsersController {
     }
 
     @Get()
-    async get(@Headers(GeneralConst.HEADER_AUTHORIZATION) headerAuthorization): Promise<GetUsersDTO[]> {
-        return this.usersService.getAll(headerAuthorization);
+    async get(): Promise<GetUsersDTO[]> {
+        return this.usersService.getAll();
     }
 
     @Post("login")
