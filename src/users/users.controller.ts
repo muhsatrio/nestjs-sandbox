@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Head, Headers, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiPathConst } from 'src/lib/const/api.path.const';
-import { InsertUserDTO } from './dto/insert-user.dto';
-import { GetUsersDTO } from './dto/get.users.dto';
+import { InsertUserRequest } from './request/insert-user-request';
+import { GetUsersResponse } from './response/get.users-response';
 import { GeneralConst } from 'src/lib/const/general.const';
-import { LoginRequestDTO } from './dto/login-request.dto';
-import { LoginResponseDTO } from './dto/login-response.dto';
+import { LoginRequest } from './request/login-request';
+import { LoginResponse } from './response/login-response';
 
 @Controller(ApiPathConst.USERS)
 export class UsersController {
@@ -14,7 +14,7 @@ export class UsersController {
     ) {}
 
     @Post("register")
-    async insert(@Body() request: InsertUserDTO) {
+    async insert(@Body() request: InsertUserRequest) {
         await this.usersService.insert(request);
 
         return {
@@ -23,12 +23,12 @@ export class UsersController {
     }
 
     @Get()
-    async get(): Promise<GetUsersDTO[]> {
+    async get(): Promise<GetUsersResponse[]> {
         return this.usersService.getAll();
     }
 
     @Post("login")
-    async login(@Body() request: LoginRequestDTO): Promise<LoginResponseDTO> {
+    async login(@Body() request: LoginRequest): Promise<LoginResponse> {
         return this.usersService.login(request);
     }
 }

@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Users } from './users/users.entity';
 import { UsersModule } from './users/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import { GeneralConst } from './lib/const/general.const';
 
 @Module({
   imports: [
@@ -19,7 +21,14 @@ import { UsersModule } from './users/users.module';
       entities: [Users],
       synchronize: true
     }),
-    UsersModule
+    UsersModule,
+    JwtModule.register({
+      global: true,
+      secret: GeneralConst.JWT_SECRET,
+      signOptions: {
+          expiresIn: GeneralConst.JWT_EXPIRY_TIME
+      }
+  })
     ],
   controllers: [AppController],
   providers: [AppService],

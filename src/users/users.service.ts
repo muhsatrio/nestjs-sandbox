@@ -2,12 +2,12 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './users.entity';
 import { Repository } from 'typeorm';
-import { InsertUserDTO } from './dto/insert-user.dto';
-import { GetUsersDTO } from './dto/get.users.dto';
+import { InsertUserRequest } from './request/insert-user-request';
+import { GetUsersResponse } from './response/get.users-response';
 import * as bcrypt from 'bcrypt';
-import { FindUserDTO } from './dto/find-user.dto';
-import { LoginRequestDTO } from './dto/login-request.dto';
-import { LoginResponseDTO } from './dto/login-response.dto';
+import { UserVO } from './vo/user.vo';
+import { LoginRequest } from './request/login-request';
+import { LoginResponse } from './response/login-response';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class UsersService {
         private jwtService: JwtService
         ) {}
 
-    async insert(request: InsertUserDTO): Promise<void> {
+    async insert(request: InsertUserRequest): Promise<void> {
         const foundUser: Users = await this.usersRepository.findOneBy({
             username: request.username
         });
@@ -38,7 +38,7 @@ export class UsersService {
         await this.usersRepository.insert(newUser);
     }
 
-    async find(username: string): Promise<FindUserDTO> | undefined {
+    async find(username: string): Promise<UserVO> | undefined {
         const foundUsers: Users = await this.usersRepository.findOneBy({
             username: username
         });
@@ -54,9 +54,9 @@ export class UsersService {
         }
     }
 
-    async getAll(): Promise<GetUsersDTO[]> {
+    async getAll(): Promise<GetUsersResponse[]> {
         const foundUser: Users[] = await this.usersRepository.find();
-        const returnedUsers: GetUsersDTO[] = new Array();
+        const returnedUsers: GetUsersResponse[] = new Array();
 
         foundUser.forEach(eachUser => {
             returnedUsers.push({
@@ -68,8 +68,8 @@ export class UsersService {
         return returnedUsers;
     }
 
-    async login(request: LoginRequestDTO): Promise<LoginResponseDTO> {
-        const foundUser: FindUserDTO = await this.find(request.username);
+    async login(request: LoginRequest): Promise<LoginResponse> {
+        const foundUser: UserVO = await this.find(request.username);
 
         if (!foundUser) {
             throw new UnauthorizedException("Username or Password is not match");
